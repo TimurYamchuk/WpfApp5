@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using Microsoft.Win32;
@@ -11,7 +11,7 @@ namespace WpfApp5
     /// </summary>
     public partial class MainWindow : Window
     {
-        private const string DefaultFilePath = "notebook.txt"; // Default file path
+        private const string DefaultFilePath = "notebook.txt";
 
         public ObservableCollection<Person> People { get; set; }
         private string currentFilePath;
@@ -22,8 +22,8 @@ namespace WpfApp5
             People = new ObservableCollection<Person>();
             DataContext = this;
 
-            currentFilePath = DefaultFilePath; // Set default path initially
-            LoadData(); // Load data when starting
+            currentFilePath = DefaultFilePath; 
+            LoadData();
         }
 
         private void BtnAdd_Click(object sender, RoutedEventArgs e)
@@ -44,13 +44,13 @@ namespace WpfApp5
 
         private void SaveData()
         {
-            // Save data to the current file
+            
             File.WriteAllLines(currentFilePath, People.Select(p => $"{p.FullName};{p.Address};{p.PhoneNumber}"));
         }
 
         private void LoadData()
         {
-            // Load data from the current file
+            
             if (File.Exists(currentFilePath))
             {
                 var lines = File.ReadAllLines(currentFilePath);
@@ -74,7 +74,7 @@ namespace WpfApp5
             if (openFileDialog.ShowDialog() == true)
             {
                 currentFilePath = openFileDialog.FileName;
-                LoadData(); // Load data from the selected file
+                LoadData(); 
             }
         }
 
@@ -87,15 +87,8 @@ namespace WpfApp5
             if (saveFileDialog.ShowDialog() == true)
             {
                 currentFilePath = saveFileDialog.FileName;
-                SaveData(); // Save data to the selected file
+                SaveData(); 
             }
         }
-    }
-
-    public class Person
-    {
-        public string FullName { get; set; }
-        public string Address { get; set; }
-        public string PhoneNumber { get; set; }
     }
 }
