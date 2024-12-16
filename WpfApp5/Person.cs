@@ -1,55 +1,51 @@
+using System;
 using System.ComponentModel;
 
-public class Person : INotifyPropertyChanged
+namespace WpfApp5
 {
-    private string _fullName;
-    private string _address;
-    private string _phoneNumber;
-
-    public string FullName
+    public class Person : INotifyPropertyChanged
     {
-        get { return _fullName; }
-        set
+        private string _fullName;
+        private string _address;
+        private string _phoneNumber;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public string FullName
         {
-            if (_fullName != value)
+            get => _fullName;
+            set
             {
                 _fullName = value;
-                OnPropertyChanged(nameof(FullName)); // Уведомляем об изменении
+                OnPropertyChanged(nameof(FullName));
             }
         }
-    }
 
-    public string Address
-    {
-        get { return _address; }
-        set
+        public string Address
         {
-            if (_address != value)
+            get => _address;
+            set
             {
                 _address = value;
-                OnPropertyChanged(nameof(Address)); // Уведомляем об изменении
+                OnPropertyChanged(nameof(Address));
             }
         }
-    }
 
-    public string PhoneNumber
-    {
-        get { return _phoneNumber; }
-        set
+        public string PhoneNumber
         {
-            if (_phoneNumber != value)
+            get => _phoneNumber;
+            set
             {
                 _phoneNumber = value;
-                OnPropertyChanged(nameof(PhoneNumber)); // Уведомляем об изменении
+                OnPropertyChanged(nameof(PhoneNumber));
             }
+        }
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 
-    // Реализация INotifyPropertyChanged
-    public event PropertyChangedEventHandler PropertyChanged;
 
-    protected virtual void OnPropertyChanged(string propertyName)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
 }
