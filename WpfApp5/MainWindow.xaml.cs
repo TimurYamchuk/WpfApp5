@@ -1,67 +1,96 @@
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using Microsoft.Win32;
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Controls;
 
 namespace WpfApp5
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         private const string DefaultFilePath = "notebook.txt";
-
-        public ObservableCollection<Person> People { get; set; }
+        private PersonRepository _personRepository;
         private string currentFilePath;
 
         public MainWindow()
         {
             InitializeComponent();
-            People = new ObservableCollection<Person>();
-            DataContext = this;
+            _personRepository = new PersonRepository();
+            DataContext = _personRepository;
 
-            currentFilePath = DefaultFilePath; 
+            currentFilePath = DefaultFilePath;
             LoadData();
         }
 
         private void BtnAdd_Click(object sender, RoutedEventArgs e)
         {
-            var person = new Person { FullName = "Новый человек", Address = "Адрес", PhoneNumber = "Телефон" };
-            People.Add(person);
-            SaveData();
+            if (!string.IsNullOrWhiteSpace(txtFullName.Text) &&
+                !string.IsNullOrWhiteSpace(txtAddress.Text) &&
+                !string.IsNullOrWhiteSpace(txtPhoneNumber.Text))
+            {
+                var person = new Person
+                {
+                    FullName = txtFullName.Text,
+                    Address = txtAddress.Text,
+                    PhoneNumber = txtPhoneNumber.Text
+                };
+
+                _personRepository.AddPerson(person);
+                SaveData();
+                ClearInputFields();
+            }
+            else
+            {
+                MessageBox.Show("Пожалуйста, заполните все поля.");
+            }
         }
 
         private void BtnDelete_Click(object sender, RoutedEventArgs e)
         {
             if (dataGrid.SelectedItem is Person selectedPerson)
             {
-                People.Remove(selectedPerson);
-                SaveData();
+                var result = MessageBox.Show("Вы уверены, что хотите удалить этот контакт?", "Подтверждение", MessageBoxButton.YesNo);
+                if (result == MessageBoxResult.Yes)
+                {
+                    _personRepository.RemovePerson(selectedPerson);
+                    SaveData();
+                }
             }
         }
 
         private void SaveData()
         {
-            
-            File.WriteAllLines(currentFilePath, People.Select(p => $"{p.FullName};{p.Address};{p.PhoneNumber}"));
+            try
+            {
+                File.WriteAllLines(currentFilePath, _personRepository.People.Select(p => $"{p.FullName};{p.Address};{p.PhoneNumber}"));
+            }
+            catch (IOException ex)
+            {
+                MessageBox.Show($"Ошибка при сохранении файла: {ex.Message}");
+            }
         }
 
         private void LoadData()
         {
-            
-            if (File.Exists(currentFilePath))
+            try
             {
-                var lines = File.ReadAllLines(currentFilePath);
-                foreach (var line in lines)
+                if (File.Exists(currentFilePath))
                 {
-                    var parts = line.Split(';');
-                    if (parts.Length == 3)
+                    var lines = File.ReadAllLines(currentFilePath);
+                    foreach (var line in lines)
                     {
-                        People.Add(new Person { FullName = parts[0], Address = parts[1], PhoneNumber = parts[2] });
+                        var parts = line.Split(';');
+                        if (parts.Length == 3)
+                        {
+                            _personRepository.AddPerson(new Person { FullName = parts[0], Address = parts[1], PhoneNumber = parts[2] });
+                        }
                     }
                 }
+            }
+            catch (IOException ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке файла: {ex.Message}");
             }
         }
 
@@ -74,7 +103,7 @@ namespace WpfApp5
             if (openFileDialog.ShowDialog() == true)
             {
                 currentFilePath = openFileDialog.FileName;
-                LoadData(); 
+                LoadData();
             }
         }
 
@@ -87,7 +116,76 @@ namespace WpfApp5
             if (saveFileDialog.ShowDialog() == true)
             {
                 currentFilePath = saveFileDialog.FileName;
-                SaveData(); 
+                SaveData();
+            }
+        }
+
+        private void BtnEdit_Click(object sender, RoutedEventArgs e)
+        {
+            // Проверяем, выбран ли элемент в DataGrid
+            if (dataGrid.SelectedItem is Person selectedPerson)
+            {
+                // Заполняем поля ввода данными выбранного элемента
+                txtFullName.Text = selectedPerson.FullName;
+                txtAddress.Text = selectedPerson.Address;
+                txtPhoneNumber.Text = selectedPerson.PhoneNumber;
+            }
+            else
+            {
+                MessageBox.Show("Пожалуйста, выберите контакт для редактирования.");
+            }
+        }
+
+        private void BtnSaveEdited_Click(object sender, RoutedEventArgs e)
+        {
+            // Проверяем, заполнены ли поля
+            if (!string.IsNullOrWhiteSpace(txtFullName.Text) &&
+                !string.IsNullOrWhiteSpace(txtAddress.Text) &&
+                !string.IsNullOrWhiteSpace(txtPhoneNumber.Text))
+            {
+                // Ищем выбранный контакт в коллекции
+                var selectedPerson = dataGrid.SelectedItem as Person;
+                if (selectedPerson != null)
+                {
+                    // Обновляем данные в объекте
+                    selectedPerson.FullName = txtFullName.Text;
+                    selectedPerson.Address = txtAddress.Text;
+                    selectedPerson.PhoneNumber = txtPhoneNumber.Text;
+
+                    // Сохраняем изменения
+                    SaveData();
+                    MessageBox.Show("Контакт успешно обновлен.");
+                    ClearInputFields();  // Очистить поля ввода после сохранения
+                }
+            }
+            else
+            {
+                MessageBox.Show("Пожалуйста, заполните все поля.");
+            }
+        }
+
+        private void ClearInputFields()
+        {
+            txtFullName.Clear();
+            txtPhoneNumber.Clear();
+            txtAddress.Clear();
+        }
+
+        private void ClearPlaceholderText(object sender, RoutedEventArgs e)
+        {
+            if (sender is TextBox textBox && textBox.Text == textBox.Tag.ToString())
+            {
+                textBox.Text = "";
+                textBox.Foreground = Brushes.Black; // Установим нормальный цвет текста
+            }
+        }
+
+        private void SetPlaceholderText(object sender, RoutedEventArgs e)
+        {
+            if (sender is TextBox textBox && string.IsNullOrWhiteSpace(textBox.Text))
+            {
+                textBox.Text = textBox.Tag.ToString();
+                textBox.Foreground = Brushes.Gray; 
             }
         }
     }
