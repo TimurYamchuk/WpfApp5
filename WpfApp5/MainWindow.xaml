@@ -1,35 +1,48 @@
-﻿<Window x:Class="WpfApp5.MainWindow"
+<Window x:Class="WpfApp5.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="People Manager" Height="400" Width="600">
-    <Grid>
-        <!-- StackPanel для кнопок, все кнопки на одном уровне -->
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10">
-            <!-- Add Button -->
-            <Button Content="Add" Width="75" Margin="5" Click="BtnAdd_Click"/>
+        Title="People Manager" Height="600" Width="800">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-            <!-- Delete Button -->
-            <Button Content="Delete" Width="75" Margin="5" Click="BtnDelete_Click"/>
-
-            <!-- Open File Button -->
-            <Button Content="Open" Width="75" Margin="5" Click="OpenFile_Click"/>
-
-            <!-- Save As Button -->
-            <Button Content="Save As" Width="75" Margin="5" Click="SaveAsFile_Click"/>
+        <!-- Панель с кнопками -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,15">
+            <Button Content="Add" Width="100" Height="40" Padding="10,5" FontWeight="Bold" Click="BtnAdd_Click" Margin="0,0,10,0"/>
+            <Button Content="Edit" Width="100" Height="40" Padding="10,5" FontWeight="Bold" Click="BtnEdit_Click" Margin="0,0,10,0"/>
+            <Button Content="Delete" Width="100" Height="40" Padding="10,5" FontWeight="Bold" Click="BtnDelete_Click" Margin="0,0,10,0"/>
+            <Button Content="Open" Width="100" Height="40" Padding="10,5" FontWeight="Bold" Click="OpenFile_Click" Margin="0,0,10,0"/>
+            <Button Content="Save As" Width="100" Height="40" Padding="10,5" FontWeight="Bold" Click="SaveAsFile_Click"/>
         </StackPanel>
 
-        <!-- DataGrid для People -->
-        <DataGrid x:Name="dataGrid" AutoGenerateColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Top"
-                  Margin="10,60,10,50" Height="250" ItemsSource="{Binding People}">
+        <!-- Поля ввода для имени, адреса и телефона -->
+        <StackPanel Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,15">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,10">
+                <Label Content="Имя:" Width="80" VerticalAlignment="Center" FontSize="14" FontWeight="Bold"/>
+                <TextBox x:Name="txtFullName" Width="250" Padding="10" FontSize="14" VerticalAlignment="Top" BorderBrush="Black" BorderThickness="1" GotFocus="ClearPlaceholderText" LostFocus="SetPlaceholderText" Tag="Введите имя"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,10">
+                <Label Content="Адрес:" Width="80" VerticalAlignment="Center" FontSize="14" FontWeight="Bold"/>
+                <TextBox x:Name="txtAddress" Width="250" Padding="10" FontSize="14" VerticalAlignment="Top" BorderBrush="Black" BorderThickness="1" GotFocus="ClearPlaceholderText" LostFocus="SetPlaceholderText" Tag="Введите адрес"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,10">
+                <Label Content="Контакты:" Width="79" VerticalAlignment="Center" FontSize="14" FontWeight="Bold"/>
+                <TextBox x:Name="txtPhoneNumber" Width="253" Padding="10" FontSize="14" VerticalAlignment="Top" BorderBrush="Black" BorderThickness="1" GotFocus="ClearPlaceholderText" LostFocus="SetPlaceholderText" Tag="Введите номер телефона"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- DataGrid с контактами -->
+        <DataGrid x:Name="dataGrid" Grid.Row="2" AutoGenerateColumns="False"
+                  Margin="10,0,10,10" ItemsSource="{Binding People}" SelectionMode="Single" FontSize="14" BorderBrush="Black" BorderThickness="1">
             <DataGrid.Columns>
-                <!-- Колонка для имени -->
-                <DataGridTextColumn Header="Имя" Binding="{Binding FullName}" Width="*"/>
-
-                <!-- Колонка для контактов -->
-                <DataGridTextColumn Header="Контакты" Binding="{Binding PhoneNumber}" Width="*"/>
-
-                <!-- Колонка для адреса -->
-                <DataGridTextColumn Header="Адрес" Binding="{Binding Address}" Width="*"/>
+                <DataGridTextColumn Header="Имя" Binding="{Binding FullName}" Width="*" />
+                <DataGridTextColumn Header="Контакты" Binding="{Binding PhoneNumber}" Width="*" />
+                <DataGridTextColumn Header="Адрес" Binding="{Binding Address}" Width="*" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>
